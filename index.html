@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valorant Live Rank Overlay - OBS Stream Setup</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon"></div>
+        <div class="brand-text">
+          <h1>VALORANT LIVE RANK OVERLAY</h1>
+          <p>OBS & Streamlabs Browser Source &bull; HenrikDev API v3 &bull; GitHub Pages</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge-tag highlight">OBS Ready</span>
+        <span class="badge-tag">100% Free & Open Source</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Layout -->
+  <main class="dashboard-grid">
+    
+    <!-- LEFT COLUMN: SETTINGS & CUSTOMIZATION -->
+    <div class="settings-column">
+
+      <!-- Section 1: Player Profile & API Key -->
+      <section class="card-section">
+        <h2 class="card-title">
+          <span class="card-title-icon">&#9874;</span> Player Profile &amp; HenrikDev API
+        </h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="input-name">Riot Game Name</label>
+            <input type="text" id="input-name" class="form-input" placeholder="e.g. TenZ" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tag">Tagline</label>
+            <input type="text" id="input-tag" class="form-input" placeholder="e.g. 0001" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="select-region">Account Region</label>
+            <select id="select-region" class="form-select">
+              <option value="na" selected>North America (NA)</option>
+              <option value="eu">Europe (EU)</option>
+              <option value="ap">Asia Pacific (AP)</option>
+              <option value="kr">Korea (KR)</option>
+              <option value="latam">Latin America (LATAM)</option>
+              <option value="br">Brazil (BR)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="select-refresh">Auto-Refresh Interval</label>
+            <select id="select-refresh" class="form-select">
+              <option value="30">30 seconds (Fast)</option>
+              <option value="60" selected>60 seconds (Recommended)</option>
+              <option value="120">2 minutes</option>
+              <option value="300">5 minutes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-key">HenrikDev API Key</label>
+          <div class="input-with-button">
+            <input type="password" id="input-key" class="form-input" placeholder="HDEV-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off">
+            <button type="button" id="btn-toggle-key" class="input-btn">Show</button>
+          </div>
+          <span class="input-hint">
+            HenrikDev API requires a free API key. 
+            <a href="https://discord.gg/X3GaVkX2YN" target="_blank" rel="noopener">Join HenrikDev Discord</a> &rarr; go to <code>#get-a-key</code> or visit 
+            <a href="https://api.henrikdev.xyz/dashboard/" target="_blank" rel="noopener">HenrikDev Dashboard</a> to generate yours instantly.
+          </span>
+        </div>
+
+        <button type="button" id="btn-test-api" class="btn-secondary" style="width: 100%; margin-top: 6px;">
+          &#128269; Test HenrikDev API Connection
+        </button>
+
+        <div id="test-status-box" class="test-status-box"></div>
+      </section>
+
+      <!-- Section 2: Layout & Theme -->
+      <section class="card-section">
+        <h2 class="card-title">
+          <span class="card-title-icon">&#9632;</span> Overlay Layout &amp; Theme
+        </h2>
+
+        <div class="form-group">
+          <label class="form-label">Select Layout</label>
+          <div class="radio-cards-grid">
+            <label class="radio-card">
+              <input type="radio" name="layout" value="pill" checked>
+              <div class="radio-card-content">
+                <span>Pill Bar</span>
+                <span class="radio-card-desc">Compact</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="layout" value="card">
+              <div class="radio-card-content">
+                <span>Card HUD</span>
+                <span class="radio-card-desc">Standard</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="layout" value="minimal">
+              <div class="radio-card-content">
+                <span>Minimal</span>
+                <span class="radio-card-desc">Tiny</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="layout" value="wide">
+              <div class="radio-card-content">
+                <span>Wide Banner</span>
+                <span class="radio-card-desc">Esports</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Color Theme</label>
+          <div class="radio-cards-grid">
+            <label class="radio-card">
+              <input type="radio" name="theme" value="tactical" checked>
+              <div class="radio-card-content">
+                <span>Tactical</span>
+                <span class="radio-card-desc">Valorant Red</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="theme" value="neon">
+              <div class="radio-card-content">
+                <span>Cyber Neon</span>
+                <span class="radio-card-desc">Electric Glow</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="theme" value="glass">
+              <div class="radio-card-content">
+                <span>Frosted Glass</span>
+                <span class="radio-card-desc">Modern Blur</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="theme" value="dark">
+              <div class="radio-card-content">
+                <span>Pure Dark</span>
+                <span class="radio-card-desc">Stealth</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="slider-scale">Scale / Size: <span id="scale-display" style="color: var(--val-red);">100%</span></label>
+          <input type="range" id="slider-scale" min="0.8" max="1.5" step="0.05" value="1.0" class="form-input" style="padding: 4px;">
+        </div>
+      </section>
+
+      <!-- Section 3: Elements Display Toggles -->
+      <section class="card-section">
+        <h2 class="card-title">
+          <span class="card-title-icon">&#9881;</span> Display Options
+        </h2>
+
+        <div class="toggle-grid">
+          <div class="toggle-item">
+            <span class="toggle-label">Player Name</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-name" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <span class="toggle-label">Rank Name</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-rank-name" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <span class="toggle-label">Last Match RR Diff</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-delta" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <span class="toggle-label">Peak Rank</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-peak" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <span class="toggle-label">Stream Session W/L</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-session" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <span class="toggle-label">Sound FX on Update</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-sound">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Demo Mode Toggle & Sub-options -->
+        <div class="toggle-item" style="margin-top: 14px; border-color: rgba(255, 70, 85, 0.4);">
+          <div>
+            <span class="toggle-label" style="color: var(--val-cream);">Demo / Preview Mode</span>
+            <span class="input-hint" style="margin: 0;">Test styling without an API key</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-demo" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div id="demo-controls-group" style="margin-top: 14px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px;">
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="select-demo-tier">Demo Rank</label>
+              <select id="select-demo-tier" class="form-select"></select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="slider-demo-rr">Demo RR: <span id="demo-rr-display" style="color: var(--accent-cyan);">72 RR</span></label>
+              <input type="range" id="slider-demo-rr" min="0" max="100" value="72" class="form-input" style="padding: 4px;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE STREAMER PREVIEW & OBS URL -->
+    <div class="preview-column">
+      <div class="preview-sticky">
+        
+        <!-- Live Preview Container -->
+        <div class="preview-wrapper">
+          <div class="preview-header">
+            <div class="preview-title">
+              <span>&#9654;</span> LIVE OBS PREVIEW
+            </div>
+            <div class="preview-bg-toggles">
+              <button type="button" class="preview-bg-btn active" data-bg="checker">Transparent Grid</button>
+              <button type="button" class="preview-bg-btn" data-bg="dark">Dark</button>
+              <button type="button" class="preview-bg-btn" data-bg="game">In-Game Backdrop</button>
+            </div>
+          </div>
+
+          <div id="preview-canvas" class="preview-canvas bg-checker">
+            <!-- Overlay Preview Frame -->
+            <iframe id="preview-iframe" src="overlay.html?demo=true" style="border: none; background: transparent; overflow: hidden;" scrolling="no"></iframe>
+          </div>
+
+          <!-- Simulation Actions -->
+          <div class="sim-toolbar">
+            <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Stream Simulation:</span>
+            <div class="sim-btn-group">
+              <button type="button" id="btn-sim-gain" class="sim-btn" title="Simulate +22 RR Match Win">+22 RR Win</button>
+              <button type="button" id="btn-sim-loss" class="sim-btn" title="Simulate -17 RR Match Loss">-17 RR Loss</button>
+              <button type="button" id="btn-sim-rankup" class="sim-btn" title="Simulate Rank Up Celebration">&#9733; Rank Up</button>
+              <button type="button" id="btn-reset-session" class="sim-btn" title="Reset Session Stats">Reset Session</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generated OBS Browser Source URL Box -->
+        <div class="url-generator-box">
+          <h3 style="font-family: 'Teko', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: 0.8px;">
+            &#128279; Your OBS Browser Source URL
+          </h3>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+            Paste this URL directly into an OBS Studio or Streamlabs Browser Source:
+          </p>
+          <div class="url-display-wrap">
+            <input type="text" id="generated-url" class="url-input" readonly value="">
+            <button type="button" id="btn-copy-url" class="copy-btn">&#128203; Copy URL</button>
+          </div>
+          <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+            <button type="button" id="btn-open-tab" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+              &#8599; Open Overlay in New Window
+            </button>
+          </div>
+        </div>
+
+        <!-- OBS Setup Quick Guide -->
+        <div class="obs-guide-box">
+          <h4>&#9881; OBS Studio Settings for Selected Layout</h4>
+          <ol class="obs-steps-list">
+            <li>In OBS Studio, add a new source: <strong>Browser</strong>.</li>
+            <li>Paste your copied URL into the <strong>URL</strong> field.</li>
+            <li>Set Width: <code id="obs-width-text">520 px</code> and Height: <code id="obs-height-text">95 px</code>.</li>
+            <li>Check <strong>"Shutdown source when not visible"</strong> to save resources.</li>
+            <li>Check <strong>"Refresh browser when scene becomes active"</strong>.</li>
+          </ol>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM: GITHUB PAGES DEPLOYMENT GUIDE -->
+  <section class="deploy-section">
+    <div class="deploy-card">
+      <h2 class="card-title">
+        <span class="card-title-icon">&#128640;</span> How to Host for Free on GitHub Pages
+      </h2>
+      <div class="deploy-grid">
+        <div class="deploy-step">
+          <div class="step-num">01</div>
+          <h4>Push to GitHub</h4>
+          <p>Commit and push this repository to your GitHub account (e.g. <code>https://github.com/&lt;your-username&gt;/ValorantRanksystem</code>).</p>
+        </div>
+        <div class="deploy-step">
+          <div class="step-num">02</div>
+          <h4>Enable GitHub Pages</h4>
+          <p>In your repository, navigate to <strong>Settings &rarr; Pages</strong>. Under <strong>Build and deployment</strong>, set Source to <strong>Deploy from a branch</strong> and select <strong>main</strong> / root folder.</p>
+        </div>
+        <div class="deploy-step">
+          <div class="step-num">03</div>
+          <h4>Go Live on Stream</h4>
+          <p>Your overlay is instantly live at <code>https://&lt;your-username&gt;.github.io/ValorantRanksystem/</code>! Open it in your browser to configure and generate your OBS link.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

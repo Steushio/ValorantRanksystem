@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valorant Live Rank Overlay</title>
+  <link rel="stylesheet" href="css/overlay.css">
+</head>
+<body>
+
+  <!-- Overlay Main Container -->
+  <div id="overlay-container" class="overlay-layout-pill overlay-theme-tactical">
+    
+    <!-- Floating status pill for temporary alerts -->
+    <div id="status-pill" class="status-pill"></div>
+
+    <!-- Active Overlay Content -->
+    <div id="overlay-content">
+      
+      <!-- Rank Emblem Icon -->
+      <div class="emblem-container">
+        <img id="tier-emblem" class="emblem-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Valorant Rank">
+      </div>
+
+      <!-- Main Info Group -->
+      <div class="main-info-group">
+        
+        <!-- Player Tag & Refresh Status -->
+        <div id="player-name-wrap" class="player-name-wrap">
+          <span id="player-name" class="player-name-text">Player#TAG</span>
+          <div id="refresh-indicator" class="refresh-indicator" title="Sync indicator"></div>
+        </div>
+
+        <!-- Rank Title & Leaderboard Badge -->
+        <div class="rank-header-row">
+          <span id="rank-title" class="rank-title">UNRANKED</span>
+          <span id="leaderboard-badge" class="leaderboard-badge" style="display: none;"></span>
+        </div>
+
+        <!-- RR Progress Bar & Live Counter -->
+        <div class="progress-container">
+          <div class="progress-track">
+            <div id="rr-fill-bar" class="progress-fill"></div>
+          </div>
+          
+          <div class="rr-stats-row">
+            <div class="rr-current-display">
+              <span id="rr-value" class="rr-number">0</span>
+              <span id="rr-max-label" class="rr-max-label">/ 100 RR</span>
+            </div>
+
+            <!-- Last Match +/- Delta Badge -->
+            <div id="delta-badge" class="delta-badge" style="display: none;">
+              <span id="delta-arrow" class="delta-arrow">&#9650;</span>
+              <span id="delta-value">+0 RR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary Meta (Peak Rank & Session Stats) -->
+        <div class="secondary-meta-row">
+          <!-- Peak Rank Badge -->
+          <div id="peak-badge-wrap" class="peak-badge" style="display: none;">
+            <span id="peak-text">PEAK: -</span>
+          </div>
+
+          <!-- Session Record Badge -->
+          <div id="session-wrap" class="session-badge" style="display: none;">
+            <span id="session-record" class="session-record">0W - 0L</span>
+            <span id="session-net" class="session-net-value text-neutral">0 RR</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Error Display -->
+    <div id="overlay-error" class="overlay-status error" style="display: none;"></div>
+
+    <!-- Initial Setup Prompt (Shown if opened without parameters) -->
+    <div id="no-config-banner" class="no-config-banner">
+      <h3>VALORANT RANK OVERLAY</h3>
+      <p>No player profile configured yet! Open the setup dashboard to customize your Riot ID, theme, layout, and get your OBS Browser Source link.</p>
+      <a href="index.html">Open Setup Dashboard</a>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/overlay.js"></script>
+</body>
+</html>

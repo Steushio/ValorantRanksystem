@@ -1,0 +1,566 @@
+/* ==========================================================================
+   Valorant Live Rank Overlay - OBS Stream Stylesheet
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --tier-color: #9c5ed6;
+  --tier-glow: rgba(156, 94, 214, 0.45);
+  --val-red: #ff4655;
+  --val-dark: #0f1923;
+  --val-gray: #ece8e1;
+  --val-black: #0b0e14;
+  --gain-color: #27c48d;
+  --loss-color: #ff4655;
+  --text-primary: #ffffff;
+  --text-muted: #8b97a5;
+  --border-radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 10px;
+  background-color: transparent !important;
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--text-primary);
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base Container */
+#overlay-container {
+  display: inline-flex;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+#overlay-content {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   THEMES
+   ========================================================================== */
+
+/* Theme: Tactical (Valorant Official Style) */
+.overlay-theme-tactical {
+  background: rgba(15, 25, 35, 0.92);
+  border: 1px solid rgba(255, 70, 85, 0.25);
+  border-left: 3px solid var(--tier-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--tier-glow);
+  backdrop-filter: blur(8px);
+}
+
+.overlay-theme-tactical::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--val-red);
+  border-right: 2px solid var(--val-red);
+  pointer-events: none;
+}
+
+/* Theme: Neon (Cyberpunk Glow) */
+.overlay-theme-neon {
+  background: rgba(10, 10, 26, 0.92);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-left: 3px solid var(--tier-color);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px var(--tier-glow), inset 0 0 15px rgba(0, 240, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+/* Theme: Frosted Glass */
+.overlay-theme-glass {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-left: 3px solid var(--tier-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--tier-glow);
+  backdrop-filter: blur(16px);
+}
+
+/* Theme: Deep Midnight Dark */
+.overlay-theme-dark {
+  background: rgba(6, 7, 10, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--tier-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 15px var(--tier-glow);
+}
+
+/* ==========================================================================
+   LAYOUTS
+   ========================================================================== */
+
+/* 1. LAYOUT: PILL (Horizontal Sleek Bar) */
+.overlay-layout-pill {
+  border-radius: 8px;
+  padding: 6px 14px 6px 8px;
+  align-items: center;
+  min-height: 58px;
+}
+
+.overlay-layout-pill #overlay-content {
+  gap: 12px;
+}
+
+.overlay-layout-pill .emblem-container {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-layout-pill .emblem-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px var(--tier-glow));
+}
+
+.overlay-layout-pill .main-info-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 140px;
+}
+
+/* 2. LAYOUT: CARD (Standard Streaming Box) */
+.overlay-layout-card {
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 280px;
+}
+
+.overlay-layout-card #overlay-content {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.overlay-layout-card .emblem-container {
+  width: 68px;
+  height: 68px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-layout-card .emblem-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px var(--tier-glow));
+}
+
+.overlay-layout-card .main-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+/* 3. LAYOUT: MINIMAL (Compact Emblem & Progress) */
+.overlay-layout-minimal {
+  border-radius: 6px;
+  padding: 4px 10px 4px 6px;
+  align-items: center;
+}
+
+.overlay-layout-minimal #overlay-content {
+  gap: 8px;
+}
+
+.overlay-layout-minimal .emblem-container {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-layout-minimal .emblem-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px var(--tier-glow));
+}
+
+.overlay-layout-minimal .main-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 4. LAYOUT: WIDE (Banner / Tournament Style) */
+.overlay-layout-wide {
+  border-radius: 8px;
+  padding: 8px 18px 8px 12px;
+  min-width: 440px;
+}
+
+.overlay-layout-wide #overlay-content {
+  gap: 18px;
+  width: 100%;
+}
+
+.overlay-layout-wide .emblem-container {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-layout-wide .emblem-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 10px var(--tier-glow));
+}
+
+.overlay-layout-wide .main-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+/* ==========================================================================
+   ELEMENTS & TYPOGRAPHY
+   ========================================================================== */
+
+/* Player Name */
+.player-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.player-name-text {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rank Name & Leaderboard */
+.rank-header-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.rank-title {
+  font-family: 'Teko', sans-serif;
+  font-size: 24px;
+  line-height: 0.95;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-shadow: 0 0 10px var(--tier-glow);
+}
+
+.overlay-layout-minimal .rank-title {
+  font-size: 19px;
+}
+
+.overlay-layout-card .rank-title {
+  font-size: 26px;
+}
+
+.leaderboard-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffea78;
+  background: rgba(255, 234, 120, 0.15);
+  border: 1px solid rgba(255, 234, 120, 0.4);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* Progress Bar */
+.progress-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--tier-color), #ffffff);
+  box-shadow: 0 0 10px var(--tier-color);
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: bar-shine 2.5s infinite;
+}
+
+@keyframes bar-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* RR Stats Row */
+.rr-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.rr-current-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.rr-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.rr-max-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Last Match Delta Badge */
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.delta-gain {
+  color: var(--gain-color);
+  background: rgba(39, 196, 141, 0.15);
+  border: 1px solid rgba(39, 196, 141, 0.3);
+}
+
+.delta-loss {
+  color: var(--loss-color);
+  background: rgba(255, 70, 85, 0.15);
+  border: 1px solid rgba(255, 70, 85, 0.3);
+}
+
+.delta-arrow {
+  font-size: 9px;
+}
+
+/* Secondary Meta Badges (Peak & Session) */
+.secondary-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.peak-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #c9d1d9;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.session-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1px 7px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.session-record {
+  color: #e6edf3;
+}
+
+.session-net-value {
+  font-weight: 700;
+}
+
+.text-gain {
+  color: var(--gain-color);
+}
+
+.text-loss {
+  color: var(--loss-color);
+}
+
+.text-neutral {
+  color: var(--text-muted);
+}
+
+/* Refresh / Pulse Indicator */
+.refresh-indicator {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.refresh-indicator.refreshing {
+  background: var(--val-red);
+  box-shadow: 0 0 8px var(--val-red);
+  transform: scale(1.4);
+}
+
+/* Rank Up Celebration Animation */
+.rank-up-anim {
+  animation: rank-up-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes rank-up-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 234, 120, 0.5), inset 0 0 10px rgba(255, 234, 120, 0.3);
+    border-color: #ffea78;
+  }
+  100% {
+    box-shadow: 0 0 45px rgba(255, 234, 120, 0.9), inset 0 0 25px rgba(255, 234, 120, 0.5);
+    border-color: #ffffff;
+  }
+}
+
+/* Status / Error Box */
+.overlay-status {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 380px;
+  line-height: 1.4;
+  backdrop-filter: blur(10px);
+}
+
+.overlay-status.error {
+  background: rgba(40, 10, 15, 0.94);
+  color: #ff9494;
+  border: 1px solid rgba(255, 70, 85, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-status.warning {
+  background: rgba(35, 25, 10, 0.94);
+  color: #ffe699;
+  border: 1px solid rgba(255, 200, 50, 0.4);
+}
+
+/* Small floating notification status pill */
+.status-pill {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+  background: rgba(255, 70, 85, 0.85);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: none;
+  white-space: nowrap;
+}
+
+/* No Config Setup Banner */
+.no-config-banner {
+  background: rgba(15, 25, 35, 0.95);
+  border: 1px solid rgba(255, 70, 85, 0.4);
+  padding: 14px 20px;
+  border-radius: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+  font-family: 'Inter', sans-serif;
+}
+
+.no-config-banner h3 {
+  font-family: 'Teko', sans-serif;
+  font-size: 22px;
+  color: var(--val-red);
+  letter-spacing: 0.8px;
+}
+
+.no-config-banner p {
+  font-size: 12px;
+  color: #c0c6ce;
+  line-height: 1.4;
+}
+
+.no-config-banner a {
+  display: inline-block;
+  margin-top: 4px;
+  background: var(--val-red);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  align-self: flex-start;
+}
