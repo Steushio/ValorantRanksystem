@@ -226,6 +226,7 @@ function parseV3MmrResponse(data, region, fallbackPuuid = '') {
     glow: tierMeta.glow,
     icon: tierMeta.icon,
     smallIcon: tierMeta.smallIcon,
+    isDemo: false,
     timestamp: Date.now()
   };
 }
@@ -260,6 +261,7 @@ function parseV1MmrResponse(data, region, fallbackPuuid = '') {
     glow: tierMeta.glow,
     icon: (data.images && data.images.large) ? data.images.large : tierMeta.icon,
     smallIcon: (data.images && data.images.small) ? data.images.small : tierMeta.smallIcon,
+    isDemo: false,
     timestamp: Date.now()
   };
 }
@@ -292,6 +294,7 @@ function getDemoMmrData(tierId = 18, rr = 68, lastChange = 21) {
     glow: meta.glow,
     icon: meta.icon,
     smallIcon: meta.smallIcon,
+    isDemo: true,
     timestamp: Date.now()
   };
 }

@@ -296,8 +296,8 @@
     const errorEl = document.getElementById('overlay-error');
     const mainEl = document.getElementById('overlay-content');
     
-    // If we already have loaded data, keep content visible and show small status bar
-    if (currentData) {
+    // If we have verified live data (not demo data), keep overlay visible and flash subtle pill
+    if (currentData && !currentData.isDemo) {
       const statusPill = document.getElementById('status-pill');
       if (statusPill) {
         statusPill.textContent = msg;
@@ -310,11 +310,11 @@
     }
 
     if (errorEl) {
-      errorEl.textContent = msg;
+      errorEl.innerHTML = `<div style="font-weight:700; margin-bottom: 4px; color: var(--val-red);">&#9888; OVERLAY STATUS</div><div style="font-size:12px; line-height: 1.4;">${msg}</div>`;
       errorEl.className = isWarning ? 'overlay-status warning' : 'overlay-status error';
       errorEl.style.display = 'block';
     }
-    if (mainEl && !currentData) {
+    if (mainEl) {
       mainEl.style.display = 'none';
     }
   }
@@ -326,13 +326,21 @@
     const refreshDot = document.getElementById('refresh-indicator');
     if (refreshDot) refreshDot.classList.add('refreshing');
 
+    // If switching to live mode, clear any fake demo data
+    if (!config.demo && currentData && currentData.isDemo) {
+      currentData = null;
+    }
+
     try {
       let data;
       if (config.demo) {
         data = window.ValorantApi.getDemoMmrData(config.demoTier, config.demoRr, 21);
       } else {
         if (!config.puuid && (!config.name || !config.tag)) {
-          throw new Error('Configure player PUUID or Name and Tag in overlay URL');
+          throw new Error('Please enter your Riot Game Name and Tagline above to display your live rank.');
+        }
+        if (!config.apiKey) {
+          throw new Error('HenrikDev API Key is required. Please paste your free API key above.');
         }
         data = await window.ValorantApi.fetchValorantMmr({
           puuid: config.puuid,

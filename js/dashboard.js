@@ -261,17 +261,33 @@ document.addEventListener('DOMContentLoaded', () => {
     previewIframe.style.width = `${scaledWidth + 30}px`;
     previewIframe.style.height = `${scaledHeight + 30}px`;
 
-    // Update iframe source
-    if (previewIframe.contentWindow && previewIframe.contentWindow.OverlayController) {
+    // Update iframe source - reload iframe if mode or credentials change
+    const accountSignature = `${cfg.demo}_${cfg.key}_${cfg.name}_${cfg.tag}_${cfg.puuid}_${cfg.region}`;
+    if (previewIframe.dataset.accountSignature !== accountSignature) {
+      previewIframe.dataset.accountSignature = accountSignature;
+      previewIframe.src = fullUrl;
+    } else if (previewIframe.contentWindow && previewIframe.contentWindow.OverlayController) {
       previewIframe.contentWindow.OverlayController.updateConfig(cfg);
     } else {
       previewIframe.src = fullUrl;
     }
   }
 
-  // Attach change listeners to all form fields
+  let debounceTimer = null;
+  function debouncedUpdateOverlay() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updateOverlay, 450);
+  }
+
+  // Attach change listeners to text inputs with debounce to prevent API spamming
+  [inputName, inputTag, inputPuuid, inputKey].filter(Boolean).forEach(el => {
+    el.addEventListener('input', debouncedUpdateOverlay);
+    el.addEventListener('change', updateOverlay);
+  });
+
+  // Attach immediate change listeners to toggles, sliders, and selects
   [
-    inputName, inputTag, inputPuuid, toggleUsePuuid, selectRegion, inputKey, selectRefresh,
+    toggleUsePuuid, selectRegion, selectRefresh,
     toggleName, toggleRankName, toggleDelta, togglePeak, toggleSession, toggleSound,
     selectDemoTier
   ].filter(Boolean).forEach(el => {
@@ -322,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await window.ValorantApi.fetchValorantMmr({
-        puuid: inputPuuid ? inputPuuid.value.trim() : '',
         name,
         tag,
         region,
@@ -335,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       showTestStatus(
-        `SUCCESS! Connected to ${data.playerName}#${data.playerTag} (${data.tierName}, ${data.rr} RR) — PUUID Linked (Name-Change Proof!)`,
+        `SUCCESS! Connected to ${data.playerName}#${data.playerTag} (${data.tierName}, ${data.rr} RR) — PUUID Linked!`,
         'success'
       );
 
