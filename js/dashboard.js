@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let userExplicitlyToggledDemo = false;
+
   // Load saved credentials from localStorage
   if (localStorage.getItem('val_hdev_key')) {
     inputKey.value = localStorage.getItem('val_hdev_key');
@@ -77,6 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
     selectRegion.value = localStorage.getItem('val_region');
   }
 
+  // If API key is present, immediately use Real Live Preview instead of Demo
+  if (inputKey.value.trim().length > 0) {
+    toggleDemo.checked = false;
+    if (demoControlsGroup) demoControlsGroup.style.display = 'none';
+  } else {
+    toggleDemo.checked = true;
+    if (demoControlsGroup) demoControlsGroup.style.display = 'block';
+  }
+
   // Key visibility toggle
   btnToggleKey.addEventListener('click', () => {
     if (inputKey.type === 'password') {
@@ -86,6 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
       inputKey.type = 'password';
       btnToggleKey.textContent = 'Show';
     }
+  });
+
+  // When API key is typed or edited, auto-switch to Real Live Preview
+  inputKey.addEventListener('input', () => {
+    const hasKey = inputKey.value.trim().length > 0;
+    if (hasKey && !userExplicitlyToggledDemo) {
+      toggleDemo.checked = false;
+      if (demoControlsGroup) demoControlsGroup.style.display = 'none';
+    } else if (!hasKey && !userExplicitlyToggledDemo) {
+      toggleDemo.checked = true;
+      if (demoControlsGroup) demoControlsGroup.style.display = 'block';
+    }
+    updateOverlay();
   });
 
   // Scale display update
@@ -102,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toggle demo mode UI
   toggleDemo.addEventListener('change', () => {
+    userExplicitlyToggledDemo = true;
     if (toggleDemo.checked) {
       demoControlsGroup.style.display = 'block';
     } else {
@@ -141,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tag: inputTag.value.trim().replace(/^#/, ''),
       region: selectRegion.value,
       key: inputKey.value.trim(),
+      apiKey: inputKey.value.trim(),
       layout,
       theme,
       scale: parseFloat(sliderScale.value) || 1.0,
@@ -207,6 +233,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fullUrl = generateUrl(cfg);
     generatedUrlInput.value = fullUrl;
+
+    // Update Preview Mode Badge (Live vs Demo)
+    const previewModeBadge = document.getElementById('preview-mode-badge');
+    if (previewModeBadge) {
+      if (cfg.demo) {
+        previewModeBadge.textContent = 'Demo Preview';
+        previewModeBadge.style.color = '#ffd152';
+        previewModeBadge.style.borderColor = 'rgba(255, 200, 50, 0.4)';
+        previewModeBadge.style.background = 'rgba(255, 200, 50, 0.12)';
+      } else {
+        previewModeBadge.textContent = 'Real Live Preview';
+        previewModeBadge.style.color = '#27c48d';
+        previewModeBadge.style.borderColor = 'rgba(39, 196, 141, 0.4)';
+        previewModeBadge.style.background = 'rgba(39, 196, 141, 0.12)';
+      }
+    }
 
     // Update OBS size recommendations
     const preset = LAYOUT_PRESETS[cfg.layout] || LAYOUT_PRESETS.pill;
@@ -298,11 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
       );
 
       // If test succeeded, ensure demo mode is turned off so user sees their real rank
-      if (toggleDemo.checked) {
-        toggleDemo.checked = false;
-        demoControlsGroup.style.display = 'none';
-        updateOverlay();
-      }
+      toggleDemo.checked = false;
+      userExplicitlyToggledDemo = false;
+      if (demoControlsGroup) demoControlsGroup.style.display = 'none';
+      updateOverlay();
     } catch (err) {
       showTestStatus(`API Error: ${err.message}`, 'error');
     } finally {

@@ -399,7 +399,11 @@
   // Expose API for iframe preview / dashboard communication
   window.OverlayController = {
     updateConfig: (newConfig) => {
-      config = { ...config, ...newConfig };
+      config = { 
+        ...config, 
+        ...newConfig,
+        apiKey: newConfig.apiKey || newConfig.key || config.apiKey
+      };
       audio.enabled = config.sound;
       refreshData();
     },
