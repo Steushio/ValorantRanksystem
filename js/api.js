@@ -64,17 +64,58 @@ function getTierMeta(tierId) {
 }
 
 /**
- * Fetches MMR from HenrikDev API with v3 primary and v1/v2 fallback
+ * Fetches Riot account info (including permanent PUUID) by Name and Tag
  */
-async function fetchValorantMmr({ name, tag, region = 'na', platform = 'pc', apiKey = '' }) {
+async function fetchAccountByRiotId({ name, tag, apiKey = '' }) {
   if (!name || !tag) {
     throw new Error('Player Name and Tagline are required.');
   }
 
   const cleanName = encodeURIComponent(name.trim());
   const cleanTag = encodeURIComponent(tag.trim().replace(/^#/, ''));
+  const headers = {};
+  if (apiKey) headers['Authorization'] = apiKey.trim();
+  const apiKeyQuery = apiKey ? `?api_key=${encodeURIComponent(apiKey.trim())}` : '';
+
+  const url = `https://api.henrikdev.xyz/valorant/v1/account/${cleanName}/${cleanTag}${apiKeyQuery}`;
+  const response = await fetch(url, { headers });
+
+  if (response.status === 401 || response.status === 403) {
+    throw new Error('API Key is missing or invalid.');
+  }
+  if (response.status === 404) {
+    throw new Error(`Account ${name}#${tag} not found.`);
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch account info (${response.status})`);
+  }
+
+  const json = await response.json();
+  if (json && json.data) {
+    return {
+      puuid: json.data.puuid,
+      name: json.data.name,
+      tag: json.data.tag,
+      region: json.data.region
+    };
+  }
+  throw new Error('Invalid account response structure');
+}
+
+/**
+ * Fetches MMR from HenrikDev API by either permanent PUUID or Name + Tag
+ */
+async function fetchValorantMmr({ name, tag, puuid, region = 'na', platform = 'pc', apiKey = '' }) {
   const cleanRegion = (region || 'na').toLowerCase().trim();
   const cleanPlatform = (platform || 'pc').toLowerCase().trim();
+  const cleanPuuid = (puuid || '').trim();
+
+  if (!cleanPuuid && (!name || !tag)) {
+    throw new Error('Either a permanent PUUID or both Player Name and Tagline are required.');
+  }
+
+  const cleanName = name ? encodeURIComponent(name.trim()) : '';
+  const cleanTag = tag ? encodeURIComponent(tag.trim().replace(/^#/, '')) : '';
 
   const headers = {};
   if (apiKey) {
@@ -83,48 +124,52 @@ async function fetchValorantMmr({ name, tag, region = 'na', platform = 'pc', api
 
   const apiKeyQuery = apiKey ? `?api_key=${encodeURIComponent(apiKey.trim())}` : '';
 
-  // 1. Try v3 endpoint (recommended HenrikDev endpoint)
-  const v3Url = `https://api.henrikdev.xyz/valorant/v3/mmr/${cleanRegion}/${cleanPlatform}/${cleanName}/${cleanTag}${apiKeyQuery}`;
-  
+  // 1. Try v3 endpoint (by PUUID if available, otherwise by Name/Tag)
+  const v3Url = cleanPuuid
+    ? `https://api.henrikdev.xyz/valorant/v3/by-puuid/mmr/${cleanRegion}/${cleanPlatform}/${cleanPuuid}${apiKeyQuery}`
+    : `https://api.henrikdev.xyz/valorant/v3/mmr/${cleanRegion}/${cleanPlatform}/${cleanName}/${cleanTag}${apiKeyQuery}`;
+
   try {
     const response = await fetch(v3Url, { headers });
-    
+
     if (response.status === 401 || response.status === 403) {
-      throw new Error('API Key is missing or invalid. Please provide a valid HenrikDev API key.');
+      throw new Error('API Key is missing or invalid. Please check your HenrikDev API key.');
     }
     if (response.status === 429) {
-      throw new Error('HenrikDev API rate limit reached. Waiting for next refresh cycle...');
+      throw new Error('HenrikDev API rate limit reached. Waiting for next cycle...');
     }
     if (response.status === 404) {
-      throw new Error(`Player ${name}#${tag} not found in region "${cleanRegion}". Verify spelling and region.`);
+      const identifier = cleanPuuid ? `PUUID "${cleanPuuid}"` : `Player ${name}#${tag}`;
+      throw new Error(`${identifier} not found in region "${cleanRegion}". Verify region and spelling.`);
     }
 
     if (response.ok) {
       const json = await response.json();
       if (json && json.data) {
-        return parseV3MmrResponse(json.data, cleanRegion);
+        return parseV3MmrResponse(json.data, cleanRegion, cleanPuuid);
       }
     }
-    
-    // If v3 failed with non-401/404, fallback to v1 endpoint
+
     console.warn(`HenrikDev v3 responded with status ${response.status}. Attempting v1 fallback...`);
   } catch (err) {
-    // If it was an auth error or rate limit, rethrow directly
     if (err.message.includes('API Key') || err.message.includes('rate limit') || err.message.includes('not found')) {
       throw err;
     }
-    console.warn('v3 fetch threw error:', err.message);
+    console.warn('v3 fetch error:', err.message);
   }
 
   // 2. Fallback to v1 endpoint
-  const v1Url = `https://api.henrikdev.xyz/valorant/v1/mmr/${cleanRegion}/${cleanName}/${cleanTag}${apiKeyQuery}`;
+  const v1Url = cleanPuuid
+    ? `https://api.henrikdev.xyz/valorant/v1/by-puuid/mmr/${cleanRegion}/${cleanPuuid}${apiKeyQuery}`
+    : `https://api.henrikdev.xyz/valorant/v1/mmr/${cleanRegion}/${cleanName}/${cleanTag}${apiKeyQuery}`;
+
   const v1Resp = await fetch(v1Url, { headers });
-  
+
   if (v1Resp.status === 401 || v1Resp.status === 403) {
-    throw new Error('API Key is missing or invalid. HenrikDev API now requires an API key.');
+    throw new Error('API Key is missing or invalid.');
   }
   if (v1Resp.status === 429) {
-    throw new Error('HenrikDev API rate limit reached. Please wait a moment.');
+    throw new Error('HenrikDev API rate limit reached.');
   }
   if (!v1Resp.ok) {
     const errText = await v1Resp.text().catch(() => '');
@@ -136,13 +181,13 @@ async function fetchValorantMmr({ name, tag, region = 'na', platform = 'pc', api
     throw new Error('Invalid response structure received from API.');
   }
 
-  return parseV1MmrResponse(v1Json.data, cleanRegion);
+  return parseV1MmrResponse(v1Json.data, cleanRegion, cleanPuuid);
 }
 
 /**
  * Normalizes HenrikDev v3 MMR response
  */
-function parseV3MmrResponse(data, region) {
+function parseV3MmrResponse(data, region, fallbackPuuid = '') {
   const current = data.current || {};
   const peak = data.peak || {};
   const account = data.account || {};
@@ -150,7 +195,7 @@ function parseV3MmrResponse(data, region) {
 
   const tierId = current.tier ? current.tier.id : 0;
   const tierMeta = getTierMeta(tierId);
-  
+
   const peakTierId = peak.tier ? peak.tier.id : 0;
   const peakMeta = getTierMeta(peakTierId);
 
@@ -159,6 +204,7 @@ function parseV3MmrResponse(data, region) {
   const actLosses = Math.max(0, actGames - actWins);
 
   return {
+    puuid: account.puuid || data.puuid || fallbackPuuid,
     playerName: account.name || 'Agent',
     playerTag: account.tag || '0000',
     region: region.toUpperCase(),
@@ -187,11 +233,12 @@ function parseV3MmrResponse(data, region) {
 /**
  * Normalizes HenrikDev v1 MMR response
  */
-function parseV1MmrResponse(data, region) {
+function parseV1MmrResponse(data, region, fallbackPuuid = '') {
   const tierId = data.currenttier || 0;
   const tierMeta = getTierMeta(tierId);
 
   return {
+    puuid: data.puuid || fallbackPuuid,
     playerName: data.name || 'Agent',
     playerTag: data.tag || '0000',
     region: region.toUpperCase(),
@@ -223,6 +270,7 @@ function parseV1MmrResponse(data, region) {
 function getDemoMmrData(tierId = 18, rr = 68, lastChange = 21) {
   const meta = getTierMeta(tierId);
   return {
+    puuid: 'demo-puuid-0000-1111-2222',
     playerName: 'Jett',
     playerTag: 'WIND',
     region: 'NA',
@@ -248,12 +296,13 @@ function getDemoMmrData(tierId = 18, rr = 68, lastChange = 21) {
   };
 }
 
-// Export for ES modules or script tags
+// Export for window
 if (typeof window !== 'undefined') {
   window.ValorantApi = {
     TIER_MAP,
     getTierMeta,
     getTierIconUrl,
+    fetchAccountByRiotId,
     fetchValorantMmr,
     getDemoMmrData
   };

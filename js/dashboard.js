@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Elements
   const inputName = document.getElementById('input-name');
   const inputTag = document.getElementById('input-tag');
+  const inputPuuid = document.getElementById('input-puuid');
+  const toggleUsePuuid = document.getElementById('toggle-use-puuid');
   const selectRegion = document.getElementById('select-region');
   const inputKey = document.getElementById('input-key');
   const btnToggleKey = document.getElementById('btn-toggle-key');
@@ -67,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (localStorage.getItem('val_riot_tag')) {
     inputTag.value = localStorage.getItem('val_riot_tag');
+  }
+  if (localStorage.getItem('val_riot_puuid') && inputPuuid) {
+    inputPuuid.value = localStorage.getItem('val_riot_puuid');
   }
   if (localStorage.getItem('val_region')) {
     selectRegion.value = localStorage.getItem('val_region');
@@ -130,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const isDemo = toggleDemo.checked;
 
     return {
+      puuid: inputPuuid ? inputPuuid.value.trim() : '',
+      usePuuid: toggleUsePuuid ? toggleUsePuuid.checked : true,
       name: inputName.value.trim(),
       tag: inputTag.value.trim().replace(/^#/, ''),
       region: selectRegion.value,
@@ -161,8 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
       base.searchParams.set('demoTier', cfg.demoTier);
       base.searchParams.set('demoRr', cfg.demoRr);
     } else {
-      if (cfg.name) base.searchParams.set('name', cfg.name);
-      if (cfg.tag) base.searchParams.set('tag', cfg.tag);
+      if (cfg.usePuuid && cfg.puuid) {
+        base.searchParams.set('puuid', cfg.puuid);
+      } else {
+        if (cfg.name) base.searchParams.set('name', cfg.name);
+        if (cfg.tag) base.searchParams.set('tag', cfg.tag);
+      }
       if (cfg.region) base.searchParams.set('region', cfg.region);
       if (cfg.key) base.searchParams.set('key', cfg.key);
     }
@@ -191,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cfg.key) localStorage.setItem('val_hdev_key', cfg.key);
     if (cfg.name) localStorage.setItem('val_riot_name', cfg.name);
     if (cfg.tag) localStorage.setItem('val_riot_tag', cfg.tag);
+    if (cfg.puuid) localStorage.setItem('val_riot_puuid', cfg.puuid);
     if (cfg.region) localStorage.setItem('val_region', cfg.region);
 
     const fullUrl = generateUrl(cfg);
@@ -217,10 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Attach change listeners to all form fields
   [
-    inputName, inputTag, selectRegion, inputKey, selectRefresh,
+    inputName, inputTag, inputPuuid, toggleUsePuuid, selectRegion, inputKey, selectRefresh,
     toggleName, toggleRankName, toggleDelta, togglePeak, toggleSession, toggleSound,
     selectDemoTier
-  ].forEach(el => {
+  ].filter(Boolean).forEach(el => {
     el.addEventListener('input', updateOverlay);
     el.addEventListener('change', updateOverlay);
   });
@@ -268,14 +280,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await window.ValorantApi.fetchValorantMmr({
+        puuid: inputPuuid ? inputPuuid.value.trim() : '',
         name,
         tag,
         region,
         apiKey: key
       });
 
+      if (data.puuid && inputPuuid) {
+        inputPuuid.value = data.puuid;
+        localStorage.setItem('val_riot_puuid', data.puuid);
+      }
+
       showTestStatus(
-        `SUCCESS! Connected to ${data.playerName}#${data.playerTag} (${data.tierName}, ${data.rr} RR, Last: ${data.lastChange > 0 ? '+' : ''}${data.lastChange} RR)`,
+        `SUCCESS! Connected to ${data.playerName}#${data.playerTag} (${data.tierName}, ${data.rr} RR) — PUUID Linked (Name-Change Proof!)`,
         'success'
       );
 

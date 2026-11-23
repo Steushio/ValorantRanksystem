@@ -84,8 +84,27 @@
           </span>
         </div>
 
-        <button type="button" id="btn-test-api" class="btn-secondary" style="width: 100%; margin-top: 6px;">
-          &#128269; Test HenrikDev API Connection
+        <div class="form-group" style="margin-top: 10px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 6px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" for="input-puuid" style="color: var(--accent-cyan); margin-bottom: 0;">
+              &#128273; Permanent Account PUUID (Name-Change Proof)
+            </label>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Use in OBS:</span>
+              <label class="switch">
+                <input type="checkbox" id="toggle-use-puuid" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+          <input type="text" id="input-puuid" class="form-input" placeholder="Auto-retrieved when testing connection or paste here" autocomplete="off" style="font-size: 12px; font-family: monospace;">
+          <span class="input-hint" style="color: #9cb3c9;">
+            <strong>Why this matters:</strong> Riot assigns every player a permanent PUUID. When enabled in your OBS URL, you can change your Riot ID (e.g. from <code>mouse#12</code> to <code>Mouse Player#12</code>) and your overlay will continue tracking your rank without ever editing OBS again!
+          </span>
+        </div>
+
+        <button type="button" id="btn-test-api" class="btn-secondary" style="width: 100%; margin-top: 10px;">
+          &#128269; Test HenrikDev API Connection (Auto-Fetch PUUID)
         </button>
 
         <div id="test-status-box" class="test-status-box"></div>

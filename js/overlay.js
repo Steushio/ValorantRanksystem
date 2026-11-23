@@ -25,6 +25,7 @@
     const params = new URLSearchParams(window.location.search);
     
     return {
+      puuid: params.get('puuid') || '',
       name: params.get('name') || '',
       tag: (params.get('tag') || '').replace(/^#/, ''),
       region: (params.get('region') || 'na').toLowerCase(),
@@ -47,11 +48,15 @@
     };
   }
 
+  function getSessionKey() {
+    return `val_overlay_session_${config.puuid || (config.name + '_' + config.tag)}`;
+  }
+
   /**
    * Initialize Session Storage
    */
   function initSession(initialData) {
-    const sessionKey = `val_overlay_session_${config.name}_${config.tag}`;
+    const sessionKey = getSessionKey();
     if (config.resetSession) {
       sessionStorage.removeItem(sessionKey);
     }
@@ -77,7 +82,7 @@
   }
 
   function saveSession() {
-    const sessionKey = `val_overlay_session_${config.name}_${config.tag}`;
+    const sessionKey = getSessionKey();
     sessionStorage.setItem(sessionKey, JSON.stringify(sessionState));
   }
 
@@ -326,10 +331,11 @@
       if (config.demo) {
         data = window.ValorantApi.getDemoMmrData(config.demoTier, config.demoRr, 21);
       } else {
-        if (!config.name || !config.tag) {
-          throw new Error('Configure player Name and Tag in overlay URL');
+        if (!config.puuid && (!config.name || !config.tag)) {
+          throw new Error('Configure player PUUID or Name and Tag in overlay URL');
         }
         data = await window.ValorantApi.fetchValorantMmr({
+          puuid: config.puuid,
           name: config.name,
           tag: config.tag,
           region: config.region,
@@ -366,7 +372,7 @@
     audio.enabled = config.sound;
 
     // Check if configuration parameters are present
-    const hasParams = (config.name && config.tag) || config.demo;
+    const hasParams = config.puuid || (config.name && config.tag) || config.demo;
     if (!hasParams) {
       const noConfigEl = document.getElementById('no-config-banner');
       if (noConfigEl) {
